@@ -518,8 +518,28 @@ namespace DotLiquid
                 value = obj.GetType().GetRuntimeProperty((string)key).GetValue(obj, null);
             }
             else if (obj is IIndexable indexableObj)
-            { 
-                value = indexableObj[key];
+            {
+                try
+                {
+                    value = indexableObj[key];
+                }
+                catch (InvalidCastException ex)
+                {
+                    //for ref: https://github.com/Shopify/liquid/wiki/Liquid-for-Designers
+                    var intKey = 0;
+                    if (int.TryParse(key.ToString(), out intKey))
+                    {
+
+                        if (intKey == 0)
+                            value = obj.GetType().GetRuntimeProperty("Name").GetValue(obj, null);
+                        else if (intKey == 1)
+                            value = obj.GetType().GetRuntimeProperty("Posts").GetValue(obj, null);
+                        else
+                            throw;
+                    }
+                    else
+                        throw;
+                }
             }
             else
             { 

@@ -299,27 +299,35 @@ namespace DotLiquid
         {
             List<object> ary;
             if (input is IEnumerable enumerableInput)
-            { 
+            {
                 ary = enumerableInput.Flatten().Cast<object>().ToList();
             }
             else
-            { 
+            {
                 ary = new List<object>(new[] { input });
             }
+            
 
             if (!ary.Any())
                 return ary;
 
             if (string.IsNullOrEmpty(property))
-            { 
-                ary.Sort();
+            {
+                try
+                {
+                    ary.Sort();
+                }
+                catch
+                {
+                    return ary;
+                }
             }
             else if ((ary.All(o => o is IDictionary)) && ((IDictionary)ary.First()).Contains(property))
-            { 
+            {
                 ary.Sort((a, b) => Comparer<object>.Default.Compare(((IDictionary)a)[property], ((IDictionary)b)[property]));
             }
             else if (ary.All(o => o.RespondTo(property)))
-            { 
+            {
                 ary.Sort((a, b) => Comparer<object>.Default.Compare(a.Send(property), b.Send(property)));
             }
 
